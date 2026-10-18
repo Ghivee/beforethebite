@@ -85,38 +85,16 @@ button { font: inherit; }
 .appbar-inner {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 10px 20px;
+  padding: 9px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: center;
 }
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 11px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-}
-.brand-mark {
-  width: 38px; height: 38px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: linear-gradient(150deg, #16263c, #0b1727);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 8px 18px rgba(12,26,43,.22);
-  color: #14b78a;
-}
-.brand-mark svg { width: 24px; height: 24px; }
-.brand-text { display: flex; flex-direction: column; line-height: 1; }
-.brand-text b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
-.brand-text small { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
 
 .step-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-2);
@@ -150,13 +128,17 @@ button { font: inherit; }
 .stepper-inner {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 8px 14px;
+  padding: 8px 20px;
   display: flex;
-  gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 .stepper-inner::-webkit-scrollbar { display: none; }
+.stepper-track {
+  display: flex;
+  gap: 4px;
+  margin: 0 auto;
+}
 .step {
   flex: 0 0 auto;
   display: inline-flex;
@@ -454,6 +436,8 @@ main {
 }
 .checklist { margin-top: 26px; }
 .checklist-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; color: var(--muted); }
+.check-count { margin-left: auto; font-size: 11.5px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.check-count.full { color: var(--primary-600); }
 .checklist-head svg { width: 17px; height: 17px; }
 .checklist-head h3 { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
 .check-item { display: flex; align-items: flex-start; gap: 13px; padding: 13px 0; cursor: pointer; border-bottom: 1px solid var(--line); -webkit-tap-highlight-color: transparent; }
@@ -465,8 +449,11 @@ main {
 .check-text { font-size: clamp(14px, 3.5vw, 15px); line-height: 1.55; font-weight: 500; }
 
 /* ================= MYTH ================= */
-.myth-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.myth-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+.myth-toolbar { display: flex; align-items: center; gap: 10px; }
 .myth-progress { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); background: var(--surface); border: 1px solid var(--line); padding: 5px 13px; border-radius: 999px; }
+.myth-score { font-size: 12px; font-weight: 800; color: var(--primary-600); background: var(--primary-050); padding: 5px 13px; border-radius: 999px; }
+.myth-play { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
 .myth-stack { position: relative; width: 100%; max-width: 500px; height: clamp(280px, 46vh, 330px); margin: 6px 0; }
 .myth-card {
   position: absolute; inset: 0 0 auto 0;
@@ -489,7 +476,6 @@ main {
 @keyframes flyLeft { to { transform: translateX(-120%) rotate(-14deg); opacity: 0; } }
 .myth-card-label { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
 .myth-card-text { font-size: clamp(17px, 4vw, 19px); line-height: 1.5; font-weight: 600; flex: 1; }
-.myth-card-ref { font-size: 12px; color: var(--muted); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .swipe-overlay { position: absolute; inset: 0; border-radius: var(--r-xl); display: grid; place-items: center; font-size: 30px; font-weight: 800; letter-spacing: .06em; opacity: 0; pointer-events: none; transition: opacity .15s; }
 .swipe-overlay.right { background: rgba(15,157,118,.1); color: var(--primary); }
 .swipe-overlay.left { background: rgba(225,29,72,.1); color: var(--danger); }
@@ -514,17 +500,38 @@ main {
 .myth-done h3 { font-size: clamp(24px, 6vw, 32px); }
 .myth-done p { color: var(--text-2); font-size: 15px; max-width: 380px; }
 
+/* myth feedback */
+.myth-feedback { display: none; width: 100%; max-width: 520px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl); padding: clamp(22px, 4vw, 30px); box-shadow: var(--sh-3); }
+.myth-feedback.active { display: block; animation: fadeUp .38s cubic-bezier(.22,.61,.36,1); }
+.fb-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.fb-icon { width: 50px; height: 50px; border-radius: 15px; flex-shrink: 0; display: grid; place-items: center; }
+.fb-icon svg { width: 26px; height: 26px; }
+.fb-icon.ok { background: var(--primary-050); color: var(--primary-600); }
+.fb-icon.no { background: rgba(225,29,72,.1); color: var(--danger); }
+.fb-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.fb-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.fb-statement { font-size: clamp(15px, 3.6vw, 16.5px); font-weight: 600; color: var(--text); line-height: 1.5; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.fb-verdict { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.fb-badge { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; padding: 6px 12px; border-radius: 999px; }
+.fb-badge.fakta { background: var(--primary-050); color: var(--primary-600); }
+.fb-badge.mitos { background: rgba(225,29,72,.1); color: var(--danger); }
+.fb-verdict-text { font-size: 13.5px; color: var(--text-2); }
+.fb-evidence { margin-top: 14px; background: #f6f8fb; border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+.fb-evidence-label { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.fb-evidence p { font-size: 13.5px; line-height: 1.6; color: var(--text-2); }
+.fb-next { width: 100%; margin-top: 20px; }
+
 /* ================= PASS ================= */
 .pass-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .pass-card { width: 100%; max-width: 500px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl); padding: clamp(24px, 4vw, 32px); box-shadow: var(--sh-3); position: relative; overflow: hidden; }
 .pass-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 5px; background: linear-gradient(90deg, var(--info), var(--primary), var(--warn), var(--danger)); }
 .pass-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-.pass-brand { display: flex; align-items: center; gap: 10px; }
-.pass-brand .brand-mark { width: 34px; height: 34px; border-radius: 11px; }
-.pass-brand .brand-mark svg { width: 21px; height: 21px; }
 .pass-brand b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(18px, 4.4vw, 22px); font-weight: 800; letter-spacing: -0.03em; }
 .pass-role-tag { font-size: 11.5px; font-weight: 600; color: var(--primary-600); background: var(--primary-050); padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
-.pass-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
+.pass-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.pass-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--muted); }
+.pass-count { font-size: 11px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pass-count.full { color: var(--primary-600); }
 .pass-commits { margin: 14px 0; }
 .pass-commit { display: flex; align-items: flex-start; gap: 13px; padding: 13px 0; cursor: pointer; border-bottom: 1px solid var(--line); -webkit-tap-highlight-color: transparent; }
 .pass-commit:last-child { border-bottom: none; }
@@ -540,8 +547,6 @@ main {
 
 /* ================= END ================= */
 .end { min-height: min(72vh, 600px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; padding: 20px 0; }
-.end-mark { width: 74px; height: 74px; border-radius: 22px; background: linear-gradient(150deg, #16263c, #0b1727); display: grid; place-items: center; box-shadow: 0 18px 40px rgba(12,26,43,.28); color: #14b78a; }
-.end-mark svg { width: 44px; height: 44px; }
 .end h2 { font-size: clamp(40px, 10vw, 76px); letter-spacing: -0.04em; line-height: 1.02; }
 .end h2 .grad { background: linear-gradient(120deg, var(--primary), var(--info)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .end-tagline { font-style: italic; color: var(--text-2); font-size: clamp(15px, 3.8vw, 18px); max-width: 480px; }
@@ -551,8 +556,7 @@ main {
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 640px) {
-  .brand-text small { display: none; }
-  .stepper { top: var(--header-h); }
+  .step { font-size: 12.5px; padding: 6px 11px 6px 7px; }
 }
 @media (max-width: 460px) {
   .stat-row { grid-template-columns: 1fr; }
@@ -579,12 +583,6 @@ main {
 <!-- APP BAR -->
 <header class="appbar">
   <div class="appbar-inner">
-    <button class="brand" onclick="goTo(0)" aria-label="Before the Bite — Beranda">
-      <span class="brand-mark">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.4 27 6.8v8.1c0 6.9-4.6 12.2-11 14.7C9.6 27.1 5 21.8 5 14.9V6.8Z" fill="currentColor"/><g fill="#fff"><circle cx="10.9" cy="14.2" r="1.65"/><circle cx="14.3" cy="11.4" r="1.65"/><circle cx="17.7" cy="11.4" r="1.65"/><circle cx="21.1" cy="14.2" r="1.65"/><path d="M16 15.2c2.5 0 4.5 1.9 4.5 4.2 0 1.8-1.4 2.9-2.9 2.9-.75 0-1.15-.3-1.6-.3s-.85.3-1.6.3c-1.5 0-2.9-1.1-2.9-2.9 0-2.3 2-4.2 4.5-4.2Z"/></g></svg>
-      </span>
-      <span class="brand-text"><b>Before the Bite</b><small>Panduan Pencegahan Rabies</small></span>
-    </button>
     <span class="step-counter" id="stepCounter">Langkah <b>1</b> / 7</span>
   </div>
   <div class="appbar-progress"><i id="globalProgress"></i></div>
@@ -592,7 +590,9 @@ main {
 
 <!-- STEPPER -->
 <nav class="stepper" aria-label="Langkah panduan">
-  <div class="stepper-inner" id="stepperInner"></div>
+  <div class="stepper-inner">
+    <div class="stepper-track" id="stepperInner"></div>
+  </div>
 </nav>
 
 <main>
@@ -812,6 +812,7 @@ main {
         <div class="checklist-head">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
           <h3>Langkah cuci luka</h3>
+          <span class="check-count" id="checkCount">0 / 5</span>
         </div>
         <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Bilas luka dengan air mengalir</div></div>
         <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Gosok sabun minimal 15 menit</div></div>
@@ -832,33 +833,59 @@ main {
   <section class="page" id="s5">
     <div class="page-head">
       <h2>Mitos atau fakta?</h2>
-      <p>Geser kartu, atau tekan tombol untuk memilih jawabanmu.</p>
+      <p>Pilih jawabanmu — kami tunjukkan apakah tepat, beserta faktanya.</p>
     </div>
     <div class="myth-wrap">
-      <div class="myth-progress" id="mythProgress">1 / 15</div>
-      <div class="myth-stack" id="mythStack"></div>
-      <div class="myth-hint">Baca pernyataannya, lalu geser ke kiri untuk <span class="left">Mitos</span> atau ke kanan untuk <span class="right">Fakta</span>.</div>
-      <div class="myth-btns">
-        <div class="myth-choice">
-          <button class="myth-btn mitos" onclick="answerMyth(false)" aria-label="Tandai sebagai mitos">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-          <span>Mitos</span>
+      <div class="myth-toolbar">
+        <span class="myth-progress" id="mythProgress">Kartu 1 / 15</span>
+        <span class="myth-score" id="mythScore">0 benar</span>
+      </div>
+
+      <div class="myth-play" id="mythPlay">
+        <div class="myth-stack" id="mythStack"></div>
+        <div class="myth-hint">Geser kartu ke kiri untuk <span class="left">Mitos</span> atau ke kanan untuk <span class="right">Fakta</span> — atau tekan tombol di bawah.</div>
+        <div class="myth-btns">
+          <div class="myth-choice">
+            <button class="myth-btn mitos" onclick="answerMyth(false)" aria-label="Tandai sebagai mitos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <span>Mitos</span>
+          </div>
+          <div class="myth-choice">
+            <button class="myth-btn fakta" onclick="answerMyth(true)" aria-label="Tandai sebagai fakta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </button>
+            <span>Fakta</span>
+          </div>
         </div>
-        <div class="myth-choice">
-          <button class="myth-btn fakta" onclick="answerMyth(true)" aria-label="Tandai sebagai fakta">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          </button>
-          <span>Fakta</span>
+      </div>
+
+      <div class="myth-feedback" id="mythFeedback">
+        <div class="fb-head">
+          <span class="fb-icon" id="fbIcon"></span>
+          <div>
+            <div class="fb-title" id="fbTitle">Tepat</div>
+            <div class="fb-sub" id="fbSub"></div>
+          </div>
         </div>
+        <p class="fb-statement" id="fbStatement"></p>
+        <div class="fb-verdict">
+          <span class="fb-badge" id="fbBadge">FAKTA</span>
+          <span class="fb-verdict-text" id="fbVerdictText"></span>
+        </div>
+        <div class="fb-evidence">
+          <div class="fb-evidence-label">Dasar / bukti</div>
+          <p id="fbEvidence"></p>
+        </div>
+        <button class="btn btn-primary fb-next" id="fbNext" onclick="nextMyth()">Lanjut</button>
       </div>
 
       <div class="myth-done" id="mythDone">
         <div class="myth-done-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg>
         </div>
-        <h3>Semua kartu selesai</h3>
-        <p>Kamu telah menuntaskan 15 kartu mitos rabies. Pengetahuan adalah perlindungan terbaik.</p>
+        <h3 id="mythDoneTitle">Semua kartu selesai</h3>
+        <p id="mythDoneText"></p>
         <div class="pass-actions">
           <button class="btn btn-ghost" onclick="resetMyths()">Ulangi</button>
           <button class="btn btn-primary" onclick="goTo(5)">Lanjut komitmen
@@ -878,15 +905,13 @@ main {
     <div class="pass-wrap">
       <div class="pass-card" id="passCard">
         <div class="pass-header">
-          <div class="pass-brand">
-            <span class="brand-mark">
-              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.4 27 6.8v8.1c0 6.9-4.6 12.2-11 14.7C9.6 27.1 5 21.8 5 14.9V6.8Z" fill="currentColor"/><g fill="#fff"><circle cx="10.9" cy="14.2" r="1.65"/><circle cx="14.3" cy="11.4" r="1.65"/><circle cx="17.7" cy="11.4" r="1.65"/><circle cx="21.1" cy="14.2" r="1.65"/><path d="M16 15.2c2.5 0 4.5 1.9 4.5 4.2 0 1.8-1.4 2.9-2.9 2.9-.75 0-1.15-.3-1.6-.3s-.85.3-1.6.3c-1.5 0-2.9-1.1-2.9-2.9 0-2.3 2-4.2 4.5-4.2Z"/></g></svg>
-            </span>
-            <b>Before the Bite</b>
-          </div>
+          <div class="pass-brand"><b>Before the Bite</b></div>
           <div class="pass-role-tag" id="passRoleTag">Belum dipilih</div>
         </div>
-        <div class="pass-label">KOMITMEN PENCEGAHAN RABIES</div>
+        <div class="pass-label-row">
+          <span class="pass-label">KOMITMEN PENCEGAHAN RABIES</span>
+          <span class="pass-count" id="passCount">0 / 4</span>
+        </div>
         <div class="pass-commits">
           <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan mencuci luka gigitan selama 15 menit</div></div>
           <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan memastikan hewan peliharaanku tervaksinasi</div></div>
@@ -903,19 +928,17 @@ main {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
           Bagikan
         </button>
-        <button class="btn btn-primary" onclick="goTo(6)">Selesai
+        <button class="btn btn-primary" id="finishBtn" disabled onclick="goTo(6)">Selesai
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </button>
       </div>
+      <p class="helper" id="passHelper">Tandai semua komitmen untuk menyelesaikan.</p>
     </div>
   </section>
 
   <!-- ===== 7. SELESAI ===== -->
   <section class="page" id="s7">
     <div class="end">
-      <span class="end-mark">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.4 27 6.8v8.1c0 6.9-4.6 12.2-11 14.7C9.6 27.1 5 21.8 5 14.9V6.8Z" fill="currentColor"/><g fill="#fff"><circle cx="10.9" cy="14.2" r="1.65"/><circle cx="14.3" cy="11.4" r="1.65"/><circle cx="17.7" cy="11.4" r="1.65"/><circle cx="21.1" cy="14.2" r="1.65"/><path d="M16 15.2c2.5 0 4.5 1.9 4.5 4.2 0 1.8-1.4 2.9-2.9 2.9-.75 0-1.15-.3-1.6-.3s-.85.3-1.6.3c-1.5 0-2.9-1.1-2.9-2.9 0-2.3 2-4.2 4.5-4.2Z"/></g></svg>
-      </span>
       <h2>Before the <span class="grad">Bite</span></h2>
       <p class="end-tagline">"Pencegahan terbaik dimulai sebelum gigitan itu terjadi."</p>
       <div class="end-tags">#BeforeTheBite · #EliminasiRabies · #RabiesFreeIndonesia</div>
@@ -970,6 +993,7 @@ const myths = [
 ];
 
 let mythIndex = 0;
+let mythScore = 0;
 let mythDeckOrder = [];
 
 const PAW_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>';
@@ -995,7 +1019,7 @@ function renderShell() {
   });
   const pct = (currentPage / (TOTAL - 1)) * 100;
   document.getElementById('globalProgress').style.width = pct + '%';
-  document.getElementById('stepCounter').innerHTML = 'Langkah <b>' + (currentPage + 1) + '</b> / ' + TOTAL;
+  document.getElementById('stepCounter').innerHTML = 'Langkah <b>' + (currentPage + 1) + '</b> / ' + TOTAL + ' · ' + STEPS[currentPage];
 }
 
 function goTo(index) {
@@ -1023,6 +1047,7 @@ function onEnter(index) {
   if (index === 5) {
     document.getElementById('passRoleTag').textContent = selectedRole || 'Belum dipilih';
     document.getElementById('passDate').textContent = formatDateID(new Date());
+    updatePassCount();
   }
 }
 
@@ -1116,15 +1141,36 @@ function timerReset() {
   document.getElementById('timerStartBtn').innerHTML = ICON_PLAY + ' Mulai';
   updateTimerUI();
   document.querySelectorAll('.check-item').forEach(c => c.classList.remove('checked'));
+  updateCheckCount();
 }
 
-function toggleCheck(el) { el.classList.toggle('checked'); }
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  updateCheckCount();
+}
+
+function updateCheckCount() {
+  const items = document.querySelectorAll('.checklist .check-item');
+  const done = document.querySelectorAll('.checklist .check-item.checked').length;
+  const el = document.getElementById('checkCount');
+  if (!el) return;
+  el.textContent = done + ' / ' + items.length;
+  el.classList.toggle('full', done === items.length && items.length > 0);
+}
 
 /* ===================== MYTH ===================== */
+const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+function updateMythToolbar() {
+  const total = myths.length;
+  document.getElementById('mythProgress').textContent = 'Kartu ' + Math.min(mythIndex + 1, total) + ' / ' + total;
+  document.getElementById('mythScore').textContent = mythScore + ' benar';
+}
+
 function buildMythCards() {
   const stack = document.getElementById('mythStack');
   stack.innerHTML = '';
-  const total = myths.length;
   const remaining = mythDeckOrder.slice(mythIndex);
   if (!remaining.length) { showMythDone(); return; }
 
@@ -1133,7 +1179,7 @@ function buildMythCards() {
   initSwipe(frontCard);
   stack.appendChild(frontCard);
 
-  document.getElementById('mythProgress').textContent = (mythIndex + 1) + ' / ' + total;
+  updateMythToolbar();
 }
 
 function createMythCard(data, extraClass) {
@@ -1143,8 +1189,7 @@ function createMythCard(data, extraClass) {
     '<div class="myth-card-label">Pernyataan</div>' +
     '<div class="myth-card-text">' + escapeHTML(data.text) + '</div>' +
     '<div><div class="swipe-overlay right">FAKTA</div>' +
-    '<div class="swipe-overlay left">MITOS</div></div>' +
-    '<div class="myth-card-ref">' + escapeHTML(data.ref) + '</div>';
+    '<div class="swipe-overlay left">MITOS</div></div>';
   return card;
 }
 
@@ -1190,32 +1235,80 @@ function answerMyth(isFakta) {
   const stack = document.getElementById('mythStack');
   const frontCard = stack.querySelector('.front-card');
   if (!frontCard) return;
+  const m = myths[mythDeckOrder[mythIndex]];
+  const correct = (m.isTrue === isFakta);
+  if (correct) mythScore++;
   frontCard.style.transform = '';
   frontCard.classList.add(isFakta ? 'fly-right' : 'fly-left');
-  setTimeout(() => { mythIndex++; buildMythCards(); }, 400);
+  setTimeout(() => showFeedback(m, correct), 380);
+}
+
+function showFeedback(m, correct) {
+  document.getElementById('mythPlay').style.display = 'none';
+  const icon = document.getElementById('fbIcon');
+  icon.className = 'fb-icon ' + (correct ? 'ok' : 'no');
+  icon.innerHTML = correct ? ICON_CHECK : ICON_X;
+  document.getElementById('fbTitle').textContent = correct ? 'Tepat!' : 'Belum tepat';
+  document.getElementById('fbSub').textContent = correct ? 'Jawabanmu sesuai fakta.' : 'Jawabanmu belum sesuai fakta.';
+  document.getElementById('fbStatement').textContent = m.text;
+  const badge = document.getElementById('fbBadge');
+  badge.textContent = m.isTrue ? 'FAKTA' : 'MITOS';
+  badge.className = 'fb-badge ' + (m.isTrue ? 'fakta' : 'mitos');
+  document.getElementById('fbVerdictText').textContent = m.isTrue ? 'Pernyataan ini benar.' : 'Pernyataan ini keliru.';
+  document.getElementById('fbEvidence').textContent = m.ref;
+  document.getElementById('fbNext').textContent = (mythIndex + 1 >= myths.length) ? 'Lihat hasil' : 'Lanjut';
+  document.getElementById('mythFeedback').classList.add('active');
+  updateMythToolbar();
+}
+
+function nextMyth() {
+  document.getElementById('mythFeedback').classList.remove('active');
+  mythIndex++;
+  if (mythIndex >= myths.length) { showMythDone(); return; }
+  document.getElementById('mythPlay').style.display = 'flex';
+  buildMythCards();
 }
 
 function showMythDone() {
-  document.getElementById('mythStack').style.display = 'none';
-  document.querySelector('.myth-hint').style.display = 'none';
-  document.querySelector('.myth-btns').style.display = 'none';
-  document.getElementById('mythProgress').style.display = 'none';
+  document.getElementById('mythPlay').style.display = 'none';
+  document.getElementById('mythFeedback').classList.remove('active');
+  document.querySelector('.myth-toolbar').style.display = 'none';
+  document.getElementById('mythDoneTitle').textContent = 'Semua kartu selesai';
+  document.getElementById('mythDoneText').textContent =
+    'Kamu menjawab ' + mythScore + ' dari ' + myths.length + ' kartu dengan tepat. Pengetahuan adalah perlindungan terbaik.';
   document.getElementById('mythDone').classList.add('active');
 }
 
 function resetMyths() {
   mythIndex = 0;
+  mythScore = 0;
   mythDeckOrder = myths.map((_, i) => i);
-  document.getElementById('mythStack').style.display = 'block';
-  document.querySelector('.myth-hint').style.display = '';
-  document.querySelector('.myth-btns').style.display = '';
-  document.getElementById('mythProgress').style.display = '';
+  document.getElementById('mythPlay').style.display = 'flex';
+  document.getElementById('mythFeedback').classList.remove('active');
+  document.querySelector('.myth-toolbar').style.display = '';
   document.getElementById('mythDone').classList.remove('active');
   buildMythCards();
 }
 
 /* ===================== PASS ===================== */
-function togglePassCheck(el) { el.classList.toggle('checked'); }
+function togglePassCheck(el) {
+  el.classList.toggle('checked');
+  updatePassCount();
+}
+
+function updatePassCount() {
+  const items = document.querySelectorAll('.pass-commit');
+  const done = document.querySelectorAll('.pass-commit.checked').length;
+  const count = document.getElementById('passCount');
+  const finish = document.getElementById('finishBtn');
+  const helper = document.getElementById('passHelper');
+  if (count) { count.textContent = done + ' / ' + items.length; count.classList.toggle('full', done === items.length); }
+  if (finish) finish.disabled = done !== items.length;
+  if (helper) {
+    helper.textContent = (done === items.length) ? 'Siap — tekan Selesai untuk mengakhiri.' : 'Tandai semua komitmen untuk menyelesaikan.';
+    helper.classList.toggle('ready', done === items.length);
+  }
+}
 
 function formatDateID(date) {
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -1238,7 +1331,9 @@ window.addEventListener('DOMContentLoaded', () => {
   buildDogViz();
   showSegment(0);
   updateTimerUI();
+  updateCheckCount();
   resetMyths();
+  updatePassCount();
   document.getElementById('passDate').textContent = formatDateID(new Date());
 });
 </script>
