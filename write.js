@@ -1,0 +1,1462 @@
+const fs = require('fs');
+const path = require('path');
+
+const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#dde4ee">
+<meta name="description" content="Timeline interaktif pencegahan rabies — kenali langkah, mitos, dan cara mencegahnya.">
+<title>Before the Bite — Timeline Pencegahan Rabies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #dde4ee;
+  --surface: #ffffff;
+  --text: #0b1220;
+  --text-2: #3f4c63;
+  --muted: #727f93;
+  --border: #ccd5e2;
+
+  --dark: #0f172a;
+  --dark-hover: #1e293b;
+  --accent: #4f46e5;
+
+  --rose: #e11d48;
+  --amber: #d97706;
+  --sky: #0284c7;
+  --emerald: #059669;
+
+  --r-sm: 12px;
+  --r: 18px;
+  --r-lg: 26px;
+
+  --sh-sm: 0 1px 2px rgba(16,24,40,.07), 0 2px 5px rgba(16,24,40,.08);
+  --sh: 0 8px 22px rgba(16,24,40,.12), 0 3px 8px rgba(16,24,40,.08);
+  --sh-lg: 0 20px 52px rgba(16,24,40,.18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: -0.006em;
+  overflow-x: hidden;
+  background:
+    radial-gradient(900px 520px at 104% -8%, rgba(79,70,229,.16), transparent 60%),
+    radial-gradient(820px 540px at -10% 106%, rgba(5,150,105,.13), transparent 58%),
+    linear-gradient(160deg, #e3e9f3 0%, #d7dfeb 100%);
+  background-attachment: fixed;
+}
+
+::selection { background: rgba(79,70,229,.16); }
+
+h1, h2, h3 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; letter-spacing: -0.028em; line-height: 1.12; font-weight: 800; }
+
+svg { display: block; }
+
+/* ---------- NAVIGATION ---------- */
+.nav {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh);
+  transition: opacity .3s;
+}
+.nav-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .25s ease;
+}
+.nav-dot::after {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #c6cdd8;
+  transition: all .25s ease;
+}
+.nav-dot:hover::after { background: #94a3b8; transform: scale(1.25); }
+.nav-dot.active::after { width: 22px; background: var(--dark); }
+
+/* ---------- SECTIONS ---------- */
+.section {
+  display: none;
+  min-height: 100vh;
+  padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 40px);
+  max-width: 960px;
+  margin: 0 auto;
+}
+.section.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fade .5s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  height: 50px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  white-space: nowrap;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn svg { width: 18px; height: 18px; }
+.btn:active { transform: scale(.975); }
+
+.btn-dark { background: var(--dark); color: #fff; box-shadow: 0 8px 20px rgba(15,23,42,.22); }
+.btn-dark:hover:not(:disabled) { background: var(--dark-hover); transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,23,42,.28); }
+.btn-dark:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+
+.btn-emerald { background: var(--emerald); color: #fff; box-shadow: 0 8px 20px rgba(5,150,105,.26); }
+.btn-emerald:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(5,150,105,.34); }
+
+.btn-ghost { background: #fff; color: var(--text); border: 1px solid var(--border); box-shadow: var(--sh-sm); }
+.btn-ghost:hover { background: #fbfcfe; transform: translateY(-2px); box-shadow: var(--sh); }
+
+.btn-sm { height: 42px; padding: 0 18px; font-size: 13.5px; gap: 7px; }
+.btn-sm svg { width: 16px; height: 16px; }
+
+.btn-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px 0 13px;
+  border-radius: 999px;
+  margin-bottom: 28px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--sh-sm);
+  transition: all .2s;
+}
+.btn-back svg { width: 16px; height: 16px; }
+.btn-back:hover { color: var(--text); transform: translateX(-3px); box-shadow: var(--sh); }
+
+/* ---------- LANDING ---------- */
+#s1 { text-align: center; gap: 22px; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--accent);
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 999px;
+  box-shadow: var(--sh-sm);
+}
+.eyebrow .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(79,70,229,.5);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79,70,229,.45); }
+  70% { box-shadow: 0 0 0 9px rgba(79,70,229,0); }
+  100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); }
+}
+
+#s1 h1 {
+  font-size: clamp(44px, 10vw, 88px);
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+#s1 h1 .accent { color: var(--accent); }
+
+.lede {
+  font-size: clamp(15px, 3.6vw, 18px);
+  color: var(--text-2);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+.quote {
+  font-size: clamp(14px, 3.3vw, 15.5px);
+  font-style: italic;
+  color: var(--muted);
+  max-width: 440px;
+  padding-left: 18px;
+  border-left: 2px solid var(--border);
+  text-align: left;
+  line-height: 1.7;
+}
+
+/* ---------- ROLE ---------- */
+#s2 { gap: 26px; }
+#s2 h2 { font-size: clamp(28px, 6.5vw, 42px); }
+
+.section-lead { color: var(--text-2); font-size: 15px; margin-top: -14px; }
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.role-card {
+  background: rgba(255,255,255,.94);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 26px 16px 22px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .22s cubic-bezier(.22,.61,.36,1);
+  user-select: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--sh-sm);
+}
+.role-card:hover { transform: translateY(-4px); box-shadow: var(--sh); border-color: #dbe1ea; }
+.role-card.selected {
+  border-color: transparent;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--accent), var(--sh);
+}
+.role-icon {
+  width: 52px; height: 52px;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 15px;
+  background: #eef0f5;
+  color: var(--text-2);
+  transition: all .22s;
+}
+.role-icon svg { width: 25px; height: 25px; }
+.role-card.selected .role-icon { background: rgba(79,70,229,.1); color: var(--accent); }
+.role-label { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ---------- TIMELINE ---------- */
+#s3 { gap: 0; justify-content: flex-start; width: 100%; padding-top: clamp(24px, 5vw, 48px); padding-bottom: 56px; }
+
+.timeline-topbar {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.timeline-topbar h2 { font-size: clamp(22px, 5.5vw, 32px); }
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 7px 15px;
+  border-radius: 999px;
+  box-shadow: var(--sh-sm);
+}
+.role-pill::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.timeline-track { width: 100%; max-width: 900px; position: relative; margin-bottom: 34px; }
+
+.track-line-wrap {
+  position: relative;
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+  margin: 26px 30px 0;
+}
+.track-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rose), var(--amber), var(--sky), var(--emerald));
+  border-radius: 999px;
+  width: 0%;
+  transition: width .6s cubic-bezier(.22,.61,.36,1);
+}
+
+.nodes-row {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: -27px;
+  left: 0; right: 0;
+}
+.tl-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 92px;
+  font-family: inherit;
+}
+.tl-node-circle {
+  width: 56px; height: 56px;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  box-shadow: var(--sh-sm);
+  transition: all .28s cubic-bezier(.22,.61,.36,1);
+}
+.tl-node-circle svg { width: 24px; height: 24px; }
+.tl-node:hover .tl-node-circle { transform: translateY(-3px); box-shadow: var(--sh); }
+.tl-node-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--muted);
+  transition: color .28s;
+}
+
+.tl-node.n-after.active .tl-node-circle { background: var(--rose); border-color: var(--rose); color: #fff; box-shadow: 0 10px 22px rgba(225,29,72,.3); }
+.tl-node.n-during.active .tl-node-circle { background: var(--amber); border-color: var(--amber); color: #fff; box-shadow: 0 10px 22px rgba(217,119,6,.3); }
+.tl-node.n-before.active .tl-node-circle { background: var(--sky); border-color: var(--sky); color: #fff; box-shadow: 0 10px 22px rgba(2,132,199,.3); }
+.tl-node.n-origin.active .tl-node-circle { background: var(--emerald); border-color: var(--emerald); color: #fff; box-shadow: 0 10px 22px rgba(5,150,105,.3); }
+.tl-node.active .tl-node-label { color: var(--text); }
+
+.tl-segments { width: 100%; max-width: 900px; }
+
+.tl-segment {
+  display: none;
+  background: rgba(255,255,255,.96);
+  border-radius: var(--r-lg);
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--sh);
+  animation: segIn .4s cubic-bezier(.22,.61,.36,1);
+}
+.tl-segment.active { display: block; }
+@keyframes segIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.seg-header { display: flex; align-items: center; gap: 15px; margin-bottom: 22px; }
+.seg-emoji {
+  width: 54px; height: 54px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.seg-emoji svg { width: 26px; height: 26px; }
+.seg-after .seg-emoji { background: var(--rose); }
+.seg-during .seg-emoji { background: var(--amber); }
+.seg-before .seg-emoji { background: var(--sky); }
+.seg-origin .seg-emoji { background: var(--emerald); }
+
+.seg-title { font-size: clamp(20px, 4.6vw, 26px); }
+.seg-sub { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 3px; }
+
+.seg-body { font-size: clamp(14.5px, 3.5vw, 16px); line-height: 1.75; color: var(--text-2); margin-bottom: 20px; }
+.seg-body p { margin-bottom: 12px; }
+.seg-body p:last-child { margin-bottom: 0; }
+.seg-body strong { color: var(--text); font-weight: 600; }
+
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 22px 0; }
+.stat-chip {
+  background: #f7f8fa;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 16px 14px;
+  text-align: center;
+}
+.stat-chip .stat-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(17px, 4vw, 21px); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.stat-chip .stat-lbl { font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 3px; }
+
+.bullet-list { list-style: none; padding: 0; margin: 16px 0; }
+.bullet-list li {
+  position: relative;
+  padding: 12px 0 12px 30px;
+  font-size: clamp(14px, 3.5vw, 15.5px);
+  line-height: 1.6;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+}
+.bullet-list li:last-child { border-bottom: none; }
+.bullet-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px; top: 19px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: rgba(79,70,229,.1);
+  box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 5px #fff;
+}
+
+.dog-viz {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 20px;
+  background: #f7f8fa;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+}
+.dog-icon { color: var(--emerald); }
+.dog-icon svg { width: 28px; height: 28px; }
+.dog-icon.dim { color: #cfd6df; }
+
+.viz-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+
+.paw-anim { color: var(--accent); display: inline-block; animation: bob 1.4s ease-in-out infinite alternate; }
+.paw-anim svg { width: 22px; height: 22px; }
+@keyframes bob { from { transform: translateY(0); opacity: .55; } to { transform: translateY(-8px); opacity: 1; } }
+
+.seg-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.seg-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 0; }
+
+/* ---------- TIMER ---------- */
+#s4 { gap: 22px; align-items: flex-start; }
+.timer-head { align-self: center; text-align: center; }
+.timer-title { font-size: clamp(22px, 5.5vw, 32px); }
+.timer-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+.timer-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(52px, 15vw, 96px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+  transition: color .5s;
+}
+.timer-display.warn { color: var(--amber); }
+.timer-display.done { color: var(--emerald); }
+
+.timer-bar-wrap {
+  width: 100%;
+  max-width: 520px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  align-self: center;
+}
+.timer-bar { height: 100%; background: var(--dark); border-radius: 999px; width: 100%; transition: width 1s linear, background .5s; }
+.timer-bar.warn { background: var(--amber); }
+.timer-bar.done { background: var(--emerald); }
+
+.timer-controls { display: flex; gap: 12px; align-self: center; flex-wrap: wrap; justify-content: center; }
+
+.checklist {
+  width: 100%;
+  max-width: 520px;
+  align-self: center;
+  padding: clamp(22px, 4vw, 28px);
+  background: rgba(255,255,255,.96);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--sh);
+}
+.checklist-head { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; color: var(--muted); }
+.checklist-head svg { width: 17px; height: 17px; }
+.checklist-head h3 { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 13px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  -webkit-tap-highlight-color: transparent;
+}
+.check-item:last-child { border-bottom: none; }
+.check-box {
+  width: 22px; height: 22px;
+  border: 1.5px solid #cfd6df;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .2s;
+}
+.check-item.checked .check-box { background: var(--emerald); border-color: var(--emerald); }
+.check-item.checked .check-box::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+.check-item.checked .check-text { text-decoration: line-through; color: var(--muted); }
+.check-text { font-size: clamp(14px, 3.5vw, 15px); line-height: 1.55; color: var(--text); font-weight: 500; }
+
+/* ---------- MYTH ---------- */
+#s5 { gap: 16px; align-items: flex-start; }
+.myth-head { align-self: center; text-align: center; }
+.myth-title { font-size: clamp(22px, 5.5vw, 32px); }
+.myth-progress { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); background: #fff; border: 1px solid var(--border); padding: 5px 13px; border-radius: 999px; }
+
+.myth-stack { position: relative; width: 100%; max-width: 500px; height: clamp(280px, 46vh, 330px); align-self: center; margin: 12px 0; }
+.myth-card {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: clamp(24px, 4vw, 32px);
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: clamp(260px, 42vh, 310px);
+  box-shadow: var(--sh-lg);
+}
+.myth-card:active { cursor: grabbing; }
+.myth-card.back-card { transform: scale(.95) translateY(12px); opacity: .45; pointer-events: none; z-index: 0; }
+.myth-card.front-card { z-index: 1; }
+.myth-card.fly-right { animation: flyRight .42s ease forwards; }
+.myth-card.fly-left { animation: flyLeft .42s ease forwards; }
+@keyframes flyRight { to { transform: translateX(120%) rotate(14deg); opacity: 0; } }
+@keyframes flyLeft { to { transform: translateX(-120%) rotate(-14deg); opacity: 0; } }
+
+.myth-card-label { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.myth-card-text { font-size: clamp(17px, 4vw, 19px); line-height: 1.5; color: var(--text); font-weight: 600; flex: 1; }
+.myth-card-ref { font-size: 12px; color: var(--muted); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+.myth-swipe-hint { font-size: 12.5px; font-weight: 500; color: var(--muted); text-align: center; max-width: 430px; line-height: 1.6; align-self: center; }
+.myth-swipe-hint .left { color: var(--rose); font-weight: 700; }
+.myth-swipe-hint .right { color: var(--emerald); font-weight: 700; }
+
+.myth-btns { display: flex; gap: 18px; align-self: center; margin-top: 6px; }
+.myth-btn {
+  width: 62px; height: 62px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s cubic-bezier(.22,.61,.36,1);
+  box-shadow: var(--sh-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+.myth-btn svg { width: 26px; height: 26px; }
+.myth-btn.mitos { color: var(--rose); }
+.myth-btn.mitos:hover { background: var(--rose); color: #fff; border-color: var(--rose); transform: translateY(-3px); box-shadow: 0 12px 24px rgba(225,29,72,.28); }
+.myth-btn.fakta { color: var(--emerald); }
+.myth-btn.fakta:hover { background: var(--emerald); color: #fff; border-color: var(--emerald); transform: translateY(-3px); box-shadow: 0 12px 24px rgba(5,150,105,.28); }
+
+.myth-done { display: none; flex-direction: column; align-items: center; gap: 18px; text-align: center; width: 100%; padding: 24px; }
+.myth-done.active { display: flex; }
+.myth-done-icon {
+  width: 76px; height: 76px;
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(5,150,105,.1);
+  color: var(--emerald);
+}
+.myth-done-icon svg { width: 38px; height: 38px; }
+.myth-done h3 { font-size: clamp(26px, 6vw, 34px); }
+.myth-done p { color: var(--text-2); font-size: 15px; max-width: 360px; }
+
+.swipe-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; font-weight: 800;
+  letter-spacing: .06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+.swipe-overlay.right { background: rgba(5,150,105,.1); color: var(--emerald); }
+.swipe-overlay.left { background: rgba(225,29,72,.1); color: var(--rose); }
+
+/* ---------- PASS ---------- */
+#s6 { gap: 16px; align-items: flex-start; }
+.pass-card {
+  width: 100%;
+  max-width: 500px;
+  align-self: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: clamp(24px, 4vw, 32px);
+  box-shadow: var(--sh-lg);
+  position: relative;
+  overflow: hidden;
+}
+.pass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--rose), var(--amber), var(--sky), var(--emerald));
+}
+.pass-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.pass-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(19px, 4.6vw, 24px); font-weight: 800; letter-spacing: -0.03em; }
+.pass-role-tag { font-size: 11.5px; font-weight: 600; color: var(--accent); background: rgba(79,70,229,.09); padding: 6px 14px; border-radius: 999px; }
+
+.pass-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
+.pass-commits { margin: 16px 0; }
+.pass-commit { display: flex; align-items: flex-start; gap: 13px; padding: 13px 0; cursor: pointer; border-bottom: 1px solid var(--border); -webkit-tap-highlight-color: transparent; }
+.pass-commit:last-child { border-bottom: none; }
+.pass-cb { width: 22px; height: 22px; border: 1.5px solid #cfd6df; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .2s; margin-top: 1px; }
+.pass-commit.checked .pass-cb { background: var(--emerald); border-color: var(--emerald); }
+.pass-commit.checked .pass-cb::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+.pass-commit.checked .pass-commit-text { color: var(--muted); text-decoration: line-through; }
+.pass-commit-text { font-size: clamp(13.5px, 3.4vw, 14.5px); line-height: 1.55; color: var(--text); font-weight: 500; }
+
+.pass-footer { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 12px; align-items: flex-end; }
+.pass-date { font-size: 12px; color: var(--muted); }
+.pass-tags { font-size: 12px; font-weight: 700; color: var(--accent); text-align: right; line-height: 1.6; }
+.pass-actions { display: flex; gap: 12px; align-self: center; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+
+/* ---------- END ---------- */
+#s7 { text-align: center; gap: 22px; }
+#s7 .end-logo { font-size: clamp(46px, 11vw, 82px); line-height: 1.02; letter-spacing: -0.04em; }
+#s7 .end-logo .accent { color: var(--accent); }
+#s7 .end-tagline { font-style: italic; color: var(--text-2); font-size: clamp(15px, 3.8vw, 18px); max-width: 460px; }
+#s7 .end-tags { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+#s7 .end-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+.divider { width: 100%; max-width: 300px; height: 1px; background: var(--border); margin: 6px 0; }
+
+.section-subtitle { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .16em; text-transform: uppercase; align-self: center; }
+
+/* ---------- CLARITY: steps, hints, labels ---------- */
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: center;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: var(--sh-sm);
+}
+.step-pill b { color: var(--accent); font-weight: 800; }
+
+.helper { font-size: 13px; color: var(--muted); text-align: center; max-width: 420px; line-height: 1.55; transition: color .2s; }
+.helper.ready { color: var(--emerald); font-weight: 600; }
+
+#s1 .flow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+#s1 .flow svg { width: 15px; height: 15px; }
+
+.tl-hint { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--muted); margin: 0 0 24px; }
+.tl-hint svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--accent); }
+
+.myth-choice { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.myth-choice span { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+.nav-dot { position: relative; }
+.nav-tip {
+  position: absolute;
+  right: 140%;
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--dark);
+  padding: 5px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s, transform .18s;
+}
+.nav-dot:hover .nav-tip,
+.nav-dot:focus-visible .nav-tip { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 780px) {
+  .nav {
+    right: 50%;
+    top: auto;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    transform: translateX(50%);
+    flex-direction: row;
+    gap: 2px;
+    padding: 8px;
+  }
+  .nav-dot.active::after { width: 7px; height: 22px; border-radius: 999px; }
+  .nav-tip { display: none; }
+  .track-line-wrap { margin: 24px 20px 0; }
+  .tl-node { width: 68px; }
+  .tl-node-circle { width: 48px; height: 48px; border-radius: 15px; }
+  .tl-node-circle svg { width: 21px; height: 21px; }
+  .tl-node-label { font-size: 9px; }
+  .section { padding-bottom: 110px; }
+}
+
+@media (max-width: 460px) {
+  .stat-row { grid-template-columns: 1fr; }
+  .stat-chip { display: flex; align-items: baseline; justify-content: space-between; text-align: left; padding: 12px 16px; }
+  .stat-chip .stat-lbl { margin-top: 0; }
+  .seg-nav { flex-direction: column-reverse; }
+  .seg-nav .btn { width: 100%; }
+  .seg-actions .btn { flex: 1 1 100%; }
+  .role-grid { gap: 10px; }
+  .role-card { padding: 20px 10px 18px; }
+  .role-icon { width: 46px; height: 46px; }
+  .pass-footer { flex-direction: column; align-items: flex-start; }
+  .pass-tags { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="navDots">
+  <button class="nav-dot active" onclick="goTo(0)" aria-label="Mulai"><span class="nav-tip">Mulai</span></button>
+  <button class="nav-dot" onclick="goTo(1)" aria-label="Peran"><span class="nav-tip">Pilih peran</span></button>
+  <button class="nav-dot" onclick="goTo(2)" aria-label="Timeline"><span class="nav-tip">Timeline</span></button>
+  <button class="nav-dot" onclick="goTo(3)" aria-label="Timer"><span class="nav-tip">Timer cuci luka</span></button>
+  <button class="nav-dot" onclick="goTo(4)" aria-label="Mitos"><span class="nav-tip">Cek mitos</span></button>
+  <button class="nav-dot" onclick="goTo(5)" aria-label="Prevention Pass"><span class="nav-tip">Prevention Pass</span></button>
+  <button class="nav-dot" onclick="goTo(6)" aria-label="Selesai"><span class="nav-tip">Selesai</span></button>
+</nav>
+
+<!-- ===== 1. LANDING ===== -->
+<section class="section active" id="s1">
+  <span class="eyebrow"><span class="dot"></span>Pencegahan Rabies</span>
+  <h1>Before the <span class="accent">Bite</span></h1>
+  <p class="lede">Timeline interaktif yang memandu langkah pencegahan rabies — sebelum, saat, dan setelah interaksi dengan hewan.</p>
+  <p class="quote">"Sebelum gigitan itu terjadi, masih ada waktu untuk mencegah."</p>
+  <button class="btn btn-dark" onclick="goTo(1)">
+    Mulai
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+  <span class="flow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+    7 langkah interaktif · sekitar 3 menit
+  </span>
+</section>
+
+<!-- ===== 2. ROLE ===== -->
+<section class="section" id="s2">
+  <span class="step-pill"><b>Langkah 2</b> dari 7</span>
+  <h2>Pilih peranmu</h2>
+  <p class="section-lead">Sesuaikan panduan dengan kondisimu.</p>
+  <div class="role-grid">
+    <button class="role-card" onclick="selectRole(this, 'Pemilik Hewan')">
+      <span class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+      <span class="role-label">Pemilik Hewan</span>
+    </button>
+    <button class="role-card" onclick="selectRole(this, 'Orang Tua')">
+      <span class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <span class="role-label">Orang Tua</span>
+    </button>
+    <button class="role-card" onclick="selectRole(this, 'Tenaga Kesehatan')">
+      <span class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h5v5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2Z"/></svg></span>
+      <span class="role-label">Tenaga Kesehatan</span>
+    </button>
+    <button class="role-card" onclick="selectRole(this, 'Masyarakat Umum')">
+      <span class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span class="role-label">Masyarakat Umum</span>
+    </button>
+  </div>
+  <button class="btn btn-dark" id="startBtn" disabled onclick="goTo(2)">Buka Timeline</button>
+  <p class="helper" id="roleHelper">Pilih salah satu peran di atas untuk mengaktifkan tombol ini.</p>
+</section>
+
+<!-- ===== 3. TIMELINE ===== -->
+<section class="section" id="s3">
+  <span class="step-pill"><b>Langkah 3</b> dari 7</span>
+  <div class="timeline-topbar">
+    <h2>Timeline Rabies</h2>
+    <span class="role-pill" id="rolePill">Belum dipilih</span>
+  </div>
+
+  <div class="tl-hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    Klik salah satu tahap di bawah untuk membaca panduannya
+  </div>
+
+  <div class="timeline-track">
+    <div class="nodes-row">
+      <button class="tl-node n-after active" onclick="showSegment(0)">
+        <span class="tl-node-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+        <span class="tl-node-label">SETELAH</span>
+      </button>
+      <button class="tl-node n-during" onclick="showSegment(1)">
+        <span class="tl-node-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+        <span class="tl-node-label">INTERAKSI</span>
+      </button>
+      <button class="tl-node n-before" onclick="showSegment(2)">
+        <span class="tl-node-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg></span>
+        <span class="tl-node-label">SEBELUM</span>
+      </button>
+      <button class="tl-node n-origin" onclick="showSegment(3)">
+        <span class="tl-node-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+        <span class="tl-node-label">ASAL</span>
+      </button>
+    </div>
+    <div class="track-line-wrap">
+      <div class="track-progress" id="trackProgress"></div>
+    </div>
+  </div>
+
+  <div class="tl-segments">
+
+    <!-- AFTER -->
+    <div class="tl-segment seg-after active" id="seg0">
+      <div class="seg-header">
+        <span class="seg-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+        <div>
+          <div class="seg-title">Setelah paparan</div>
+          <div class="seg-sub">Langkah pertama yang paling menentukan</div>
+        </div>
+      </div>
+      <div class="seg-body">
+        <p>Rabies menular lewat <strong>air liur hewan terinfeksi</strong> — umumnya gigitan, tetapi cakaran juga berisiko bila ada luka terbuka.</p>
+        <p>Tindakan terpenting dan paling mendesak: <strong>cuci luka selama 15 menit</strong> dengan sabun dan air mengalir, lalu segera ke fasilitas kesehatan.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-chip"><div class="stat-val">&gt;99%</div><div class="stat-lbl">Efektivitas PEP</div></div>
+        <div class="stat-chip"><div class="stat-val">6,4%</div><div class="stat-lbl">Kematian global</div></div>
+        <div class="stat-chip"><div class="stat-val">1–3 bln</div><div class="stat-lbl">Masa inkubasi</div></div>
+      </div>
+      <div class="seg-actions">
+        <button class="btn btn-emerald btn-sm" onclick="goTo(3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Timer Cuci Luka
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="goTo(4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Cek Mitos
+        </button>
+      </div>
+      <div class="seg-nav">
+        <span></span>
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(1)">Interaksi
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- DURING -->
+    <div class="tl-segment seg-during" id="seg1">
+      <div class="seg-header">
+        <span class="seg-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+        <div>
+          <div class="seg-title">Saat berinteraksi</div>
+          <div class="seg-sub">Kebiasaan aman bersama hewan</div>
+        </div>
+      </div>
+      <div class="seg-body">
+        <p>Pencegahan bukan hanya soal vaksin — tetapi juga <strong>cara kita berinteraksi</strong> dengan hewan setiap hari.</p>
+      </div>
+      <ul class="bullet-list">
+        <li>Jangan ganggu hewan saat makan, tidur, atau mengasuh anak</li>
+        <li>Minta izin pemilik sebelum menyentuh hewan orang lain</li>
+        <li>Ajari anak agar tidak berlari atau berteriak di dekat anjing</li>
+        <li>Hindari kontak dengan hewan liar atau yang tidak dikenal</li>
+        <li>Jangan mengejar hewan yang ketakutan atau agresif</li>
+        <li>Amati perilaku hewan peliharaan secara rutin</li>
+      </ul>
+      <div class="seg-nav">
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          Setelah
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(2)">Sebelum
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BEFORE -->
+    <div class="tl-segment seg-before" id="seg2">
+      <div class="seg-header">
+        <span class="seg-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg></span>
+        <div>
+          <div class="seg-title">Sebelum terpapar</div>
+          <div class="seg-sub">Pencegahan dan vaksinasi</div>
+        </div>
+      </div>
+      <div class="seg-body">
+        <p>Anjing menjadi sumber <strong>99% kasus rabies pada manusia</strong>. Kabar baiknya, rabies dapat dicegah sepenuhnya.</p>
+        <p>Vaksinasi <strong>70% populasi anjing</strong> secara berkelanjutan terbukti memutus rantai penularan.</p>
+      </div>
+      <div class="viz-label">Visualisasi — 10 anjing, 7 tervaksinasi (70%)</div>
+      <div class="dog-viz" id="dogViz"></div>
+      <div class="seg-body" style="margin-top:14px;">
+        <p>Nusa Tenggara Timur termasuk provinsi dengan kasus rabies tertinggi di Indonesia. Eliminasi rabies membutuhkan peran aktif semua pihak.</p>
+      </div>
+      <div class="seg-nav">
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          Interaksi
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(3)">Asal
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ORIGIN -->
+    <div class="tl-segment seg-origin" id="seg3">
+      <div class="seg-header">
+        <span class="seg-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+        <div>
+          <div class="seg-title">Asal mula</div>
+          <div class="seg-sub">Sumber dan siklus penularan</div>
+        </div>
+      </div>
+      <div class="seg-body">
+        <p>Rabies telah ada ribuan tahun. Baru pada abad ke-20 kita memiliki senjata melawannya: <strong>vaksin</strong>.</p>
+        <p>Virus rabies hidup dalam <strong>siklus antar hewan</strong>. Saat manusia terkena gigitan atau cakaran, ia masuk ke dalam siklus itu. Memutus siklus inilah kuncinya.</p>
+        <div style="text-align:center;padding:18px 0;">
+          <span class="paw-anim" style="animation-delay:0s"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+          <span class="paw-anim" style="animation-delay:.25s"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+          <span class="paw-anim" style="animation-delay:.5s"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+        </div>
+        <p style="font-style:italic;color:var(--muted);">"Setiap langkah pencegahan adalah satu mata rantai yang kita putus."</p>
+      </div>
+      <div class="seg-actions">
+        <button class="btn btn-dark btn-sm" onclick="goTo(5)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Prevention Pass
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="goTo(4)">Cek Mitos</button>
+      </div>
+      <div class="seg-nav">
+        <button class="btn btn-ghost btn-sm" onclick="showSegment(2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          Sebelum
+        </button>
+        <span></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 4. TIMER ===== -->
+<section class="section" id="s4">
+  <button class="btn-back" onclick="goBack()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+    Kembali ke Timeline
+  </button>
+  <span class="step-pill"><b>Langkah 4</b> dari 7</span>
+  <div class="timer-head">
+    <div class="timer-title">Timer Cuci Luka</div>
+    <div class="timer-sub">Tekan Mulai, lalu basuh luka selama 15 menit penuh</div>
+  </div>
+  <div class="timer-display" id="timerDisplay">15:00</div>
+  <div class="timer-bar-wrap">
+    <div class="timer-bar" id="timerBar"></div>
+  </div>
+  <div class="timer-controls">
+    <button class="btn btn-dark" id="timerStartBtn" onclick="timerToggle()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      Mulai
+    </button>
+    <button class="btn btn-ghost" onclick="timerReset()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Reset
+    </button>
+  </div>
+  <div class="checklist">
+    <div class="checklist-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+      <h3>Langkah Cuci Luka</h3>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Bilas luka dengan air mengalir</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Gosok sabun minimal 15 menit</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Bilas kembali sampai bersih</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Beri antiseptik (povidon iodin atau alkohol 70%)</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Segera ke fasilitas kesehatan untuk PEP</div></div>
+    <p class="helper" style="margin-top:14px;text-align:left;">Ketuk tiap langkah untuk menandainya sudah dilakukan.</p>
+  </div>
+</section>
+
+<!-- ===== 5. MYTH ===== -->
+<section class="section" id="s5">
+  <button class="btn-back" onclick="goBack()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+    Kembali ke Timeline
+  </button>
+  <span class="step-pill"><b>Langkah 5</b> dari 7</span>
+  <div class="myth-head">
+    <div class="myth-title">Cek Mitos Rabies</div>
+    <div class="myth-progress" id="mythProgress">1 / 15</div>
+  </div>
+
+  <div class="myth-stack" id="mythStack"></div>
+
+  <div class="myth-swipe-hint">
+    Baca pernyataannya, lalu geser kartu ke kiri untuk <span class="left">Mitos</span> atau ke kanan untuk <span class="right">Fakta</span> — atau tekan tombol di bawah.
+  </div>
+
+  <div class="myth-btns">
+    <div class="myth-choice">
+      <button class="myth-btn mitos" onclick="answerMyth(false)" aria-label="Tandai sebagai mitos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <span>Mitos</span>
+    </div>
+    <div class="myth-choice">
+      <button class="myth-btn fakta" onclick="answerMyth(true)" aria-label="Tandai sebagai fakta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </button>
+      <span>Fakta</span>
+    </div>
+  </div>
+
+  <div class="myth-done" id="mythDone">
+    <div class="myth-done-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg>
+    </div>
+    <h3>Semua selesai</h3>
+    <p>Kamu telah menuntaskan 15 kartu mitos rabies. Pengetahuan adalah perlindungan terbaik.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+      <button class="btn btn-ghost" onclick="resetMyths()">Ulangi</button>
+      <button class="btn btn-dark" onclick="goTo(5)">Lihat Prevention Pass</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6. PASS ===== -->
+<section class="section" id="s6">
+  <button class="btn-back" onclick="goBack()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+    Kembali
+  </button>
+  <span class="step-pill"><b>Langkah 6</b> dari 7</span>
+  <div class="section-subtitle">Prevention Pass</div>
+
+  <div class="pass-card" id="passCard">
+    <div class="pass-header">
+      <div class="pass-logo">Before the Bite</div>
+      <div class="pass-role-tag" id="passRoleTag">Belum dipilih</div>
+    </div>
+    <div class="pass-label">KOMITMEN PENCEGAHAN RABIES</div>
+    <p class="helper" style="text-align:left;margin-bottom:10px;">Ketuk setiap komitmen untuk mencentangnya.</p>
+    <div class="pass-commits">
+      <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan mencuci luka gigitan selama 15 menit</div></div>
+      <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan memastikan hewan peliharaanku tervaksinasi</div></div>
+      <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan mengedukasi orang di sekitarku tentang rabies</div></div>
+      <div class="pass-commit" onclick="togglePassCheck(this)"><div class="pass-cb"></div><div class="pass-commit-text">Aku akan segera ke fasilitas kesehatan setelah paparan berisiko</div></div>
+    </div>
+    <div class="pass-footer">
+      <div class="pass-date" id="passDate"></div>
+      <div class="pass-tags">#BeforeTheBite<br>#EliminasiRabies</div>
+    </div>
+  </div>
+
+  <div class="pass-actions">
+    <button class="btn btn-ghost" onclick="sharePass()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+      Bagikan
+    </button>
+    <button class="btn btn-dark" onclick="goTo(6)">Selesai</button>
+  </div>
+</section>
+
+<!-- ===== 7. END ===== -->
+<section class="section" id="s7">
+  <span class="step-pill"><b>Langkah 7</b> dari 7 · Selesai</span>
+  <div class="end-logo">Before the<br><span class="accent">Bite</span></div>
+  <p class="end-tagline">"Pencegahan terbaik dimulai sebelum gigitan itu terjadi."</p>
+  <div class="end-tags">#BeforeTheBite · #EliminasiRabies · #RabiesFreeIndonesia</div>
+  <div class="divider"></div>
+  <div class="end-btns">
+    <button class="btn btn-ghost" onclick="goTo(0)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Mulai Ulang
+    </button>
+    <button class="btn btn-dark" onclick="shareApp()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+      Bagikan
+    </button>
+  </div>
+</section>
+
+<script>
+// ===================== STATE =====================
+let currentSection = 0;
+const history = [];
+let selectedRole = null;
+let currentSegment = 0;
+
+let timerInterval = null;
+let timerSeconds = 900;
+let timerRunning = false;
+const TIMER_TOTAL = 900;
+
+const myths = [
+  { text: 'Rabies hanya menular lewat gigitan dalam.', isTrue: false, ref: 'Cakaran pun bisa menularkan. [1]' },
+  { text: 'Cuci luka cukup sebentar saja, yang penting kena air.', isTrue: false, ref: 'Minimal 15 menit dengan sabun & air mengalir. [2][3]' },
+  { text: 'Anjing yang sudah divaksin tidak perlu diwaspadai sama sekali.', isTrue: false, ref: 'Tetap perlu waspada dan hindari perilaku berisiko. [6]' },
+  { text: 'Vaksinasi 70% populasi anjing bisa memutus rantai penularan rabies.', isTrue: true, ref: 'Cakupan berkelanjutan 70% terbukti efektif. [1][9]' },
+  { text: 'Masa inkubasi rabies bisa berlangsung 1 hingga 3 bulan.', isTrue: true, ref: 'Bahkan bisa lebih lama dalam kasus tertentu. [7]' },
+  { text: 'PEP sangat efektif bila diberikan tepat waktu setelah paparan.', isTrue: true, ref: 'Tingkat kelangsungan hidup >99% bila PEP lengkap. [5]' },
+  { text: 'Manusia bisa sembuh sendiri dari rabies tanpa vaksin setelah terpapar.', isTrue: false, ref: 'Tanpa PEP, rabies hampir selalu berakibat fatal. [4]' },
+  { text: 'Rabies hanya ada pada hewan liar, bukan anjing peliharaan.', isTrue: false, ref: 'Anjing adalah sumber 99% kasus rabies pada manusia. [1]' },
+  { text: 'Kalau tidak langsung muncul gejala setelah gigitan, berarti tidak tertular.', isTrue: false, ref: 'Masa inkubasi bisa berlangsung berbulan-bulan. [7]' },
+  { text: 'Mencuci luka tidak perlu kalau gigitannya kecil atau tidak dalam.', isTrue: false, ref: 'Semua luka gigitan atau cakaran harus dicuci segera. [2][3]' },
+  { text: 'Vaksin rabies hanya untuk orang yang berisiko sangat tinggi.', isTrue: false, ref: 'PrEP direkomendasikan untuk wisatawan & petugas lapangan. [4]' },
+  { text: 'Imunoglobulin dan vaksin diberikan bersamaan pada awal PEP.', isTrue: true, ref: 'Sesuai protokol WHO untuk paparan kategori III. [4][6]' },
+  { text: 'Anak-anak lebih rentan terkena gigitan anjing dibandingkan dewasa.', isTrue: true, ref: 'Edukasi pencegahan gigitan untuk anak jadi prioritas WHO. [6]' },
+  { text: 'Vaksinasi massal anjing bisa mencegah rabies pada manusia secara signifikan.', isTrue: true, ref: 'Terbukti memutus rantai penularan secara efektif. [1][9]' },
+  { text: 'Luka cakaran tidak perlu penanganan yang sama seperti luka gigitan.', isTrue: false, ref: 'Cakaran juga bisa menularkan virus rabies. [1]' },
+];
+
+let mythIndex = 0;
+let mythDeckOrder = [];
+
+const PAW_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>';
+
+// ===================== NAVIGATION =====================
+function goTo(index) {
+  if (index !== currentSection) history.push(currentSection);
+  const sections = document.querySelectorAll('.section');
+  sections[currentSection].classList.remove('active');
+  currentSection = index;
+  sections[currentSection].classList.add('active');
+  updateNavDots();
+  onSectionEnter(index);
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  if (history.length > 0) {
+    const prev = history.pop();
+    const sections = document.querySelectorAll('.section');
+    sections[currentSection].classList.remove('active');
+    currentSection = prev;
+    sections[currentSection].classList.add('active');
+    updateNavDots();
+    onSectionEnter(currentSection);
+    window.scrollTo(0, 0);
+  }
+}
+
+function updateNavDots() {
+  document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === currentSection));
+}
+
+function onSectionEnter(index) {
+  if (index === 2) {
+    document.getElementById('rolePill').textContent = selectedRole || 'Belum dipilih';
+    buildDogViz();
+  }
+  if (index === 3) { timerReset(); }
+  if (index === 4) { resetMyths(); }
+  if (index === 5) {
+    document.getElementById('passRoleTag').textContent = selectedRole || 'Belum dipilih';
+    document.getElementById('passDate').textContent = formatDateID(new Date());
+  }
+}
+
+// ===================== ROLE =====================
+function selectRole(el, role) {
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRole = role;
+  document.getElementById('startBtn').disabled = false;
+  const helper = document.getElementById('roleHelper');
+  if (helper) {
+    helper.textContent = 'Siap! Tekan Buka Timeline untuk melanjutkan.';
+    helper.classList.add('ready');
+  }
+}
+
+// ===================== TIMELINE =====================
+const progressWidths = ['0%', '33%', '66%', '100%'];
+
+function showSegment(index) {
+  currentSegment = index;
+  document.querySelectorAll('.tl-segment').forEach((s, i) => s.classList.toggle('active', i === index));
+  document.querySelectorAll('.tl-node').forEach((n, i) => n.classList.toggle('active', i === index));
+  document.getElementById('trackProgress').style.width = progressWidths[index];
+}
+
+// ===================== DOG VISUALIZATION =====================
+function buildDogViz() {
+  const container = document.getElementById('dogViz');
+  container.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const span = document.createElement('span');
+    span.className = 'dog-icon' + (i >= 7 ? ' dim' : '');
+    span.innerHTML = PAW_SVG;
+    container.appendChild(span);
+  }
+}
+
+// ===================== TIMER =====================
+function formatTime(secs) {
+  const m = Math.floor(secs / 60).toString().padStart(2, '0');
+  const s = (secs % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+
+function updateTimerUI() {
+  const display = document.getElementById('timerDisplay');
+  const bar = document.getElementById('timerBar');
+  display.textContent = formatTime(timerSeconds);
+  bar.style.width = (timerSeconds / TIMER_TOTAL) * 100 + '%';
+  display.className = 'timer-display';
+  bar.className = 'timer-bar';
+  if (timerSeconds === 0) {
+    display.classList.add('done');
+    bar.classList.add('done');
+  } else if (timerSeconds < 120) {
+    display.classList.add('warn');
+    bar.classList.add('warn');
+  }
+}
+
+function timerToggle() {
+  const btn = document.getElementById('timerStartBtn');
+  if (timerSeconds === 0) return;
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    btn.innerHTML = ICON_PLAY + ' Lanjutkan';
+  } else {
+    timerRunning = true;
+    btn.innerHTML = ICON_PAUSE + ' Jeda';
+    timerInterval = setInterval(() => {
+      if (timerSeconds > 0) {
+        timerSeconds--;
+        updateTimerUI();
+      } else {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.innerHTML = ICON_PLAY + ' Selesai';
+      }
+    }, 1000);
+  }
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = TIMER_TOTAL;
+  document.getElementById('timerStartBtn').innerHTML = ICON_PLAY + ' Mulai';
+  updateTimerUI();
+  document.querySelectorAll('.check-item').forEach(c => c.classList.remove('checked'));
+}
+
+function toggleCheck(el) { el.classList.toggle('checked'); }
+
+// ===================== MYTH =====================
+function buildMythCards() {
+  const stack = document.getElementById('mythStack');
+  stack.innerHTML = '';
+  const total = myths.length;
+  const remaining = mythDeckOrder.slice(mythIndex);
+  if (remaining.length === 0) { showMythDone(); return; }
+
+  if (remaining.length > 1) {
+    stack.appendChild(createMythCard(myths[remaining[1]], 'back-card'));
+  }
+  const frontCard = createMythCard(myths[remaining[0]], 'front-card');
+  initSwipe(frontCard);
+  stack.appendChild(frontCard);
+
+  document.getElementById('mythProgress').textContent = (mythIndex + 1) + ' / ' + total;
+}
+
+function createMythCard(data, extraClass) {
+  const card = document.createElement('div');
+  card.className = 'myth-card ' + extraClass;
+  card.innerHTML =
+    '<div class="myth-card-label">Pernyataan</div>' +
+    '<div class="myth-card-text">' + escapeHTML(data.text) + '</div>' +
+    '<div><div class="swipe-overlay right">FAKTA</div>' +
+    '<div class="swipe-overlay left">MITOS</div></div>' +
+    '<div class="myth-card-ref">' + escapeHTML(data.ref) + '</div>';
+  return card;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function initSwipe(card) {
+  let startX = 0, currentX = 0, dragging = false;
+  const overlayRight = card.querySelector('.swipe-overlay.right');
+  const overlayLeft = card.querySelector('.swipe-overlay.left');
+
+  function onStart(x) { startX = x; dragging = true; card.style.transition = 'none'; }
+
+  function onMove(x) {
+    if (!dragging) return;
+    currentX = x - startX;
+    card.style.transform = 'translateX(' + currentX + 'px) rotate(' + (currentX * 0.05) + 'deg)';
+    const ratio = Math.min(Math.abs(currentX) / 100, 1);
+    if (currentX > 0) { overlayRight.style.opacity = ratio; overlayLeft.style.opacity = 0; }
+    else { overlayLeft.style.opacity = ratio; overlayRight.style.opacity = 0; }
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = '';
+    overlayRight.style.opacity = 0;
+    overlayLeft.style.opacity = 0;
+    if (currentX > 80) answerMyth(true);
+    else if (currentX < -80) answerMyth(false);
+    else card.style.transform = '';
+    currentX = 0;
+  }
+
+  card.addEventListener('mousedown', e => onStart(e.clientX));
+  window.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX); });
+  window.addEventListener('mouseup', onEnd);
+  card.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+  card.addEventListener('touchmove', e => onMove(e.touches[0].clientX), { passive: true });
+  card.addEventListener('touchend', onEnd);
+}
+
+function answerMyth(isFakta) {
+  const frontCard = document.getElementById('mythStack').querySelector('.front-card');
+  if (!frontCard) return;
+  frontCard.classList.add(isFakta ? 'fly-right' : 'fly-left');
+  setTimeout(() => { mythIndex++; buildMythCards(); }, 400);
+}
+
+function showMythDone() {
+  document.getElementById('mythStack').style.display = 'none';
+  document.querySelector('.myth-swipe-hint').style.display = 'none';
+  document.querySelector('.myth-btns').style.display = 'none';
+  document.getElementById('mythProgress').style.display = 'none';
+  document.getElementById('mythDone').classList.add('active');
+}
+
+function resetMyths() {
+  mythIndex = 0;
+  mythDeckOrder = myths.map((_, i) => i);
+  document.getElementById('mythStack').style.display = 'block';
+  const hint = document.querySelector('.myth-swipe-hint');
+  const btns = document.querySelector('.myth-btns');
+  const prog = document.getElementById('mythProgress');
+  if (hint) hint.style.display = '';
+  if (btns) btns.style.display = '';
+  if (prog) prog.style.display = '';
+  document.getElementById('mythDone').classList.remove('active');
+  buildMythCards();
+}
+
+// ===================== PASS =====================
+function togglePassCheck(el) { el.classList.toggle('checked'); }
+
+function formatDateID(date) {
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  return days[date.getDay()] + ', ' + date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+}
+
+function sharePass() {
+  const text = 'Aku sudah berkomitmen untuk pencegahan rabies.\\n#BeforeTheBite #EliminasiRabies #RabiesFreeIndonesia';
+  if (navigator.share) {
+    navigator.share({ title: 'Before the Bite — Prevention Pass', text: text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Teks disalin ke clipboard.')).catch(() => alert('Salin teks: ' + text));
+  }
+}
+
+function shareApp() {
+  const text = 'Cek timeline interaktif pencegahan rabies ini.\\n#BeforeTheBite #EliminasiRabies';
+  if (navigator.share) {
+    navigator.share({ title: 'Before the Bite', text: text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Teks disalin ke clipboard.')).catch(() => alert('Salin teks: ' + text));
+  }
+}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded', () => {
+  buildDogViz();
+  showSegment(0);
+  updateTimerUI();
+  resetMyths();
+  updateNavDots();
+  document.getElementById('passDate').textContent = formatDateID(new Date());
+});
+</script>
+</body>
+</html>
+`;
+
+const outPath = path.join(__dirname, 'index.html');
+fs.writeFileSync(outPath, html, 'utf8');
+console.log('Written: ' + outPath);
+console.log('Size: ' + fs.statSync(outPath).size + ' bytes');
